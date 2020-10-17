@@ -1,15 +1,14 @@
-Package: yourPkg
-Title: What the Package Does (One Line, Title Case)
+Package: covtrack
+Title: An Overview of COVID 19 for Top Three Most Affected Countries and Australia
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Ketan",
+           family = "Kabu",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+           email = "kkab0003@student.monash.edu",
+           comment = c(ORCID = "https://orcid.org/0000-0002-3911-9215"))
+Description: This package loads an app that visualisises the progression of COVID 19 through time in USA, India, Brazil and Australia at a state level. Along with visualising the number of new cases and deaths, one can also look at the death rate of aforementioned countries and states, and compare the same to the level of restrictions applied by these governments (stringency index), and understand how that relates to rise or fall in new cases and deaths.
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
