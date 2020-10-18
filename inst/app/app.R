@@ -8,7 +8,8 @@ library(leaflet)
 library(sf)
 library(lubridate)
 
-india <- read.csv(here::here("data", "India_states.csv"))
+# india <- read.csv(here::here("data", "India_states.csv"))
+india <- read.csv(India_states)
 
 india1 <- india %>% pivot_longer(cols = 3:41, names_to = "state", values_to = "value")
 
@@ -16,20 +17,25 @@ india2 <- india1 %>% pivot_wider(names_from = Status, values_from = value)
 
 india2 <- india2 %>% rename(State_code = state)
 
-isc <- read.csv(here::here("data", "India_state_codes.csv"))
+# isc <- read.csv(here::here("data", "India_state_codes.csv"))
+isc <- read.csv(India_state_codes)
 
 india3 <- india2 %>% left_join(isc, by = "State_code")
 
-US <- read.csv(here::here("data", "US_states.csv"))
+# US <- read.csv(here::here("data", "US_states.csv"))
+US <- read.csv(US_states)
 
-brazil <- readxl::read_xlsx(here::here("data", "Brazil_states.xlsx"))
+# brazil <- readxl::read_xlsx(here::here("data", "Brazil_states.xlsx"))
+brazil <- readxl::read_xlsx(Brazil_states)
 
-aus_cases <- read.csv(here::here("data", "Aus_cases.csv"))
+# aus_cases <- read.csv(here::here("data", "Aus_cases.csv"))
+aus_cases <- read.csv(Aus_cases)
 
 aus_cases1 <- aus_cases %>% pivot_longer(cols = 2:9, names_to = "state", values_to = "new_cases")
 aus_cases1 <- aus_cases1 %>% rename(date = `ï..Date`)
 
-aus_deaths <- read.csv(here::here("data", "Aus_deaths.csv"))
+# aus_deaths <- read.csv(here::here("data", "Aus_deaths.csv"))
+aus_deaths <- read.csv(Aus_deaths)
 
 aus_deaths1 <- aus_deaths %>% pivot_longer(cols = 2:9, names_to = "state", values_to = "new_deaths")
 aus_deaths1 <- aus_deaths1 %>% rename(date = `ï..Date`)
@@ -43,20 +49,26 @@ aus_join$date <- paste0(aus_join$date, "-2020")
 aus_join$date <- dmy(aus_join$date)
 aus_join <- aus_join %>% rename(State_code = state)
 
-aus_ll <- readxl::read_xlsx(here::here("data", "Aus_state_codes.xlsx"))
+# aus_ll <- readxl::read_xlsx(here::here("data", "Aus_state_codes.xlsx"))
+aus_ll <- readxl::read_xlsx(Aus_state_codes)
+
 aus_ll <- aus_ll %>% rename(state = State)
 
 aus_final <- aus_join %>% left_join(aus_ll, by = "State_code")
 
 india3$Date <- dmy(india3$Date)
 
-india_ll <- readxl::read_xlsx(here::here("data", "India_latlong.xlsx"))
+# india_ll <- readxl::read_xlsx(here::here("data", "India_latlong.xlsx"))
+india_ll <- readxl::read_xlsx(India_latlong)
+
 
 india_final <- india3 %>% left_join(india_ll, by = "State")
 
 india_final <- india3 %>% filter(State != "State Unassigned") %>% filter(State != "Total")
 
-us_ll <- read.csv(here::here("data", "us_state_codes.csv"))
+# us_ll <- read.csv(here::here("data", "us_state_codes.csv"))
+us_ll <- read.csv(us_state_codes)
+
 
 US <- US %>% rename(State_code = state)
 
@@ -68,7 +80,8 @@ us_final <- us_final[!is.na(us_final$Latitude), ]
 
 brazil1 <- brazil %>% filter(state != "TOTAL")
 
-brazil_ll <- readxl::read_xlsx(here::here("data", "Brazil_state_codes.xlsx"))
+# brazil_ll <- readxl::read_xlsx(here::here("data", "Brazil_state_codes.xlsx"))
+brazil_ll <- readxl::read_xlsx(Brazil_state_codes)
 
 brazil1 <- brazil1 %>% rename(State_codes = state)
 
@@ -99,6 +112,7 @@ final <- rbind(us_final1, india_final1, brazil_final1, aus_final1)
 final <- final
 
 brazil_states <- geojsonio::geojson_read("https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson", what = "sp")
+
 
 brazil_states1 <- st_as_sf(brazil_states)
 
@@ -181,7 +195,8 @@ cd <- cd %>% mutate(countr_cbd = (countr_mdeath/countr_mcase)*100)
 
 cd$countr_cbd <- round(cd$countr_cbd, 2)
 
-stringent <- read.csv(here::here("data", "covid-stringency-index.csv"))
+# stringent <- read.csv(here::here("data", "covid-stringency-index.csv"))
+stringent <- read.csv(covid_stringency_index)
 
 stringent <- stringent %>% filter(Date >= "2020-01-22" & Date <= "2020-09-25")
 

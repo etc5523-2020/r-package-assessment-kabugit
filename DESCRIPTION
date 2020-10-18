@@ -6,7 +6,7 @@ Authors@R:
            family = "Kabu",
            role = c("aut", "cre"),
            email = "kkab0003@student.monash.edu",
-           comment = c(ORCID = "https://orcid.org/0000-0002-3911-9215"))
+           comment = c(ORCID = "0000-0002-3911-9215"))
 Description: This package loads an app that visualisises the progression of COVID 19 through time in USA, India, Brazil and Australia at a state level. Along with visualising the number of new cases and deaths, one can also look at the death rate of aforementioned countries and states, and compare the same to the level of restrictions applied by these governments (stringency index), and understand how that relates to rise or fall in new cases and deaths.
 License: GPL-3
 Encoding: UTF-8
@@ -24,3 +24,7 @@ Imports:
     lubridate
 Depends: 
     tidyverse
+Suggests: 
+    geojsonio,
+    DT,
+    readxl
