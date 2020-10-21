@@ -4,9 +4,9 @@
 #' 
 #' @author Ketan Kabu
 #' 
-#' @param width: Width setting for rows, personal preference is 6.
-#' @param box.width: Width setting for box, personal preference is NULL.
-#' @param command: The expression for UI input
+#' @param width Width setting for rows, personal preference is 6.
+#' @param box.width Width setting for box, personal preference is NULL.
+#' @param command The expression for UI input
 #' 
 #' @export
 

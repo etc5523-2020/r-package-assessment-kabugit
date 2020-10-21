@@ -4,7 +4,7 @@
 #' 
 #' @author Ketan Kabu
 #' 
-#' @param df: A data frame that contains information of all countries, out of which one would be selected by user on the line graph.
+#' @param df A data frame that contains information of all countries, out of which one would be selected by user on the line graph.
 #'
 #' @export
 
