@@ -7,10 +7,10 @@ covtrack was designed to provide a quick overview of COVID 19 cases and deaths i
 
 ## Installation
 
-You can install this package with:
+You can install this package from github by typing the below code in your console:
 
 ``` r
-install.packages("covtrack")
+devtools::install_github("https://github.com/etc5523-2020/r-package-assessment-kabugit.git")
 ```
 
 ## Usage

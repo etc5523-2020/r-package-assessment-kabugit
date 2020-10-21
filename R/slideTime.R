@@ -4,8 +4,8 @@
 #' 
 #' @author Ketan Kabu
 #' 
-#' @param id: An identification name for input from user, will later be used in server section to generate a plot based on user's choice of time frame (day).
-#' @param label: What the user sees when asked for day input needed for visualsation.
+#' @param id An identification name for input from user, will later be used in server section to generate a plot based on user's choice of time frame (day).
+#' @param label What the user sees when asked for day input needed for visualsation.
 #'
 #' @export
 

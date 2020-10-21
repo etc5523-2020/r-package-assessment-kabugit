@@ -4,7 +4,7 @@
 #' 
 #' @author Ketan Kabu
 #' 
-#' @param country: A country that the user will select to display country specific visualisation.
+#' @param country A country that the user will select to display country specific visualisation.
 #'
 #' @export
 
