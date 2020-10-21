@@ -1,18 +1,19 @@
 
-# Your Package Name
+# covtrack
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of _your package name_ is to ...
+covtrack was designed to provide a quick overview of COVID 19 cases and deaths in four major countries - USA, India, Brazil and Australia. An app is embedded inside the package that contains separate tabs for analysis and a "User guide" section that will help you understand how to execute visualisations.
 
 ## Installation
 
-You can install the  _your package name_ with:
+You can install this package with:
 
 ``` r
+install.packages("covtrack")
 ```
 
-## Example
+## Usage
 
 This is a basic example which shows you how to solve a common problem:
 
