@@ -28,6 +28,8 @@ library(plotly)
 library(leaflet)
 library(sf)
 library(lubridate)
+library(tidyr)
+library(stringr)
 
 Aus_cases <- system.file("ext", "Aus_cases.csv", package="covtrack")
 Aus_deaths <- system.file("ext", "Aus_deaths.csv", package="covtrack")
