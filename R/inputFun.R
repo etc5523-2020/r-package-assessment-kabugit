@@ -10,5 +10,5 @@
 #' @export
 
 inputFun <- function(id, label){
-  selectInput(id, label, choices = c("USA, India, Brazil, Australia"), selected = "USA")
+  shiny::selectInput(id, label, choices = c("USA, India, Brazil, Australia"), selected = "USA")
 }

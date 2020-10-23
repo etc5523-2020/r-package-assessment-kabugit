@@ -23,7 +23,6 @@ Imports:
     sf,
     lubridate
 Depends: 
-    tidyverse,
     R (>= 2.10)
 Suggests: 
     geojsonio,

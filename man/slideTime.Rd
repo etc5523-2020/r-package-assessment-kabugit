@@ -7,9 +7,9 @@
 slideTime(id, label)
 }
 \arguments{
-\item{id:}{An identification name for input from user, will later be used in server section to generate a plot based on user's choice of time frame (day).}
+\item{id}{An identification name for input from user, will later be used in server section to generate a plot based on user's choice of time frame (day).}
 
-\item{label:}{What the user sees when asked for day input needed for visualsation.}
+\item{label}{What the user sees when asked for day input needed for visualsation.}
 }
 \description{
 This function will add a time slider that the user can move to select a specific day for the country's casee/deaths to be visualised.

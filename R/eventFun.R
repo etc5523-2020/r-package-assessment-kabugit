@@ -5,18 +5,18 @@
 #' @author Ketan Kabu
 #' 
 #' @param df A data frame that contains information of all countries, out of which one would be selected by user on the line graph.
-#'
+#' @param session Link to shiny app server.
 #' @export
 
-eventFun <- function(df){
+eventFun <- function(df, session){
   eve <- event_data("plotly_click")
   if (is.null(eve)) return(NULL)
   
   if(eve$curveNumber == 0){
-    temp <<- df %>% filter(country == "Australia")
+    df %>% filter(country == "Australia")
   }
   if(eve$curveNumber == 1){
-    temp <<- df %>% filter(country == "Brazil")
+    df %>% filter(country == "Brazil")
   }
   if(eve$curveNumber == 2){
     temp <<- df %>% filter(country =="India")

@@ -7,9 +7,9 @@
 inputFun(id, label)
 }
 \arguments{
-\item{id:}{An identification name for input from user, will later be used in server section to generate a plot based of user's choice.}
+\item{id}{An identification name for input from user, will later be used in server section to generate a plot based of user's choice.}
 
-\item{label:}{What the user sees when asked for input.}
+\item{label}{What the user sees when asked for input.}
 }
 \description{
 This function will create drop down selection options in app UI for user to visualise a specific country.

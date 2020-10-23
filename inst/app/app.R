@@ -9,6 +9,23 @@ library(sf)
 library(lubridate)
 
 # india <- read.csv(here::here("data", "India_states.csv"))
+Aus_cases <- system.file("ext", "Aus_cases.csv", package="covtrack")
+Aus_deaths <- system.file("ext", "Aus_deaths.csv", package="covtrack")
+Aus_deaths <- system.file("ext", "Aus_state_codes.xlsx", package="covtrack")
+Aus_deaths <- system.file("ext", "Aus_deaths.csv", package="covtrack")
+Aus_state_codes <- system.file("ext", "Aus_state_codes.xlsx", package="covtrack")
+Brazil_state_codes <- system.file("ext", "Brazil_state_codes.xlsx", package="covtrack")
+Brazil_states <- system.file("ext", "Brazil_states.xlsx", package="covtrack")
+covid_stringency_index <- system.file("ext", "covid-stringency-index.csv", package="covtrack")
+Death_rate <- system.file("ext", "Death rate null.png", package="covtrack")
+India_latlong <- system.file("ext", "India_latlong.xlsx", package="covtrack")
+India_state_codes <- system.file("ext", "India_state_codes.csv", package="covtrack")
+India_states <- system.file("ext", "India_states.csv", package="covtrack")
+New_cases <- system.file("ext", "New cases.png", package="covtrack")
+New_deaths <- system.file("ext", "New deaths.png", package="covtrack")
+us_state_codes <- system.file("ext", "us_state_codes.csv", package="covtrack")
+US_states <- system.file("ext", "US_states.csv", package="covtrack")
+
 india <- read.csv(India_states)
 
 india1 <- india %>% pivot_longer(cols = 3:41, names_to = "state", values_to = "value")
@@ -108,8 +125,6 @@ india_final <- india_final %>% rename(date = Date, newCases = Confirmed, newDeat
 india_final1 <- india_final %>% select(date, State_code, state, country, newCases, newDeaths)
 
 final <- rbind(us_final1, india_final1, brazil_final1, aus_final1)
-
-final <- final
 
 brazil_states <- geojsonio::geojson_read("https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson", what = "sp")
 
@@ -228,19 +243,19 @@ cd2 <- as.data.frame(cd2)
 
 # Lets create some slick functions!
 
-widthFun <- function(width, box.width, command) {
-    fluidRow(width = 6,
-             box(width = NULL,
-                 command))
-}
-
-inputFun <- function(id, label){
-    selectInput(id, label, choices = c("USA, India, Brazil, Australia"), selected = "USA")
-}
-
-slideTime <- function(id, label) {
-    sliderInput(id, label, min(final$date), max(final$date), max(final$date))
-}
+# widthFun <- function(width, box.width, command) {
+#     fluidRow(width = 6,
+#              box(width = NULL,
+#                  command))
+# }
+# 
+# inputFun <- function(id, label){
+#     selectInput(id, label, choices = c("USA, India, Brazil, Australia"), selected = "USA")
+# }
+# 
+# slideTime <- function(id, label) {
+#     sliderInput(id, label, min(final$date), max(final$date), max(final$date))
+# }
 
 ui <-dashboardPage(
     dashboardHeader(title = h6("Countries most affected by COVID-19 and Australia")),
@@ -300,7 +315,7 @@ ui <-dashboardPage(
                                  p("2. Slide the time button at the bottom to view changes in the COVID 19 situation in the United States."),
                                  p("3. Hover your mouse over the map in the middle to see state names and case numbers for better understanding."),
                                  br(),
-                                 img(src = here::here("data","New cases.png"), height = "500px", width = "100%")
+                                 img(src = here::here("data","New_cases.png"), height = "500px", width = "100%")
                              ))),
             
             tabItem(tabName = "deaths-a", h2("Deaths By Country"),
@@ -318,7 +333,7 @@ ui <-dashboardPage(
                     #              leafletOutput("plotdeath"))),
                     
                     widthFun(6, NULL, slideTime("timerd", "Time"))),
-            
+             
             # fluidRow(width = 6,
             #          box(width = NULL,
             #              slideTime("timerd", "Time")))), #Function to call sliderInput
@@ -337,7 +352,7 @@ ui <-dashboardPage(
                                  p("2. Slide the time button at the bottom to view changes in COVID 19 deaths in the Brazil."),
                                  p("3. Hover your mouse over the map in the middle to see state names and case numbers for better understanding."),
                                  br(),
-                                 img(src = "New deaths.png", height = "500px", width = "100%")
+                                 img(src = "New_deaths.png", height = "500px", width = "100%")
                              ))),
             
             tabItem(tabName = "drs-a", h2("Death Rate Per Case For Countries And States"),
@@ -374,12 +389,12 @@ ui <-dashboardPage(
                                  p("2. m_death - Monthly deaths"),
                                  p("3. m_string - Stringency index in that month in that country"),
                                  br(),
-                                 img(src = "Death rate null.png", height = "500px", width = "100%"),
+                                 img(src = "Death_rate_null.png", height = "500px", width = "100%"),
                              )))
             
         )))
 
-server <- function(input, output) {
+server <- function(input, output, session) {
     output$plotcase <- renderLeaflet({
         final_filt <- final %>% 
             filter(country == input$countryselc & date == input$timerc)
@@ -387,45 +402,45 @@ server <- function(input, output) {
         bins <- c(0, 50, 100, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, Inf)
         beaut <- colorBin("YlOrRd", domain = final_filt$newCases, bins = bins)
         
-        b <- leaflet(final_filt) %>%
-            setView(-52, -15, 3.5) %>%
-            addTiles("MapBox")
-        
-        
-        u <- leaflet(final_filt) %>% 
-            setView(-110, 52.8, 2.5) %>% 
-            addTiles("MapBox")
-        
-        
-        i <- leaflet(final_filt) %>% 
-            setView(79, 21, 4.4) %>% 
-            addTiles("MapBox")
-        
-        
-        a <- leaflet(final_filt) %>% 
-            setView(134, -27, 4) %>% 
-            addTiles("MapBox")
-        
-        leafSel <- function(country){
-            country = input$countryselc
-            if(country == "USA") {
-                return(u)
-            }
-            if(country == "Brazil"){
-                return(b)
-            }
-            if(country == "India"){
-                return(i)
-            }
-            if(country == "Australia"){
-                return(a)
-            }
-        }
+        # b <- leaflet(final_filt) %>%
+        #     setView(-52, -15, 3.5) %>%
+        #     addTiles("MapBox")
+        # 
+        # 
+        # u <- leaflet(final_filt) %>% 
+        #     setView(-110, 52.8, 2.5) %>% 
+        #     addTiles("MapBox")
+        # 
+        # 
+        # i <- leaflet(final_filt) %>% 
+        #     setView(79, 21, 4.4) %>% 
+        #     addTiles("MapBox")
+        # 
+        # 
+        # a <- leaflet(final_filt) %>% 
+        #     setView(134, -27, 4) %>% 
+        #     addTiles("MapBox")
+        # 
+        # leafSel <- function(country){
+        #     country = input$countryselc
+        #     if(country == "USA") {
+        #         return(u)
+        #     }
+        #     if(country == "Brazil"){
+        #         return(b)
+        #     }
+        #     if(country == "India"){
+        #         return(i)
+        #     }
+        #     if(country == "Australia"){
+        #         return(a)
+        #     }
+        # }
         
         labels <- sprintf("<strong>%s</strong><br/>%g new cases",
                           final_filt$state, final_filt$newCases) %>% lapply(htmltools::HTML)
         
-        pcase <-  leafSel(input$countryselc) %>%
+        pcase <-  leafSel(input$countryselc, final_filt) %>%
             addPolygons(fillColor = ~beaut(final_filt$newCases),
                         weight = 2,
                         opacity = 1,
@@ -448,45 +463,45 @@ server <- function(input, output) {
         bins <- c(0, 10,20,30,40,50,75,100,125,150,175,200, Inf)
         beaut <- colorBin("YlOrRd", domain = final_filt$newDeaths, bins = bins)
         
-        b <- leaflet(final_filt) %>%
-            setView(-52, -15, 3.5) %>%
-            addTiles("MapBox")
+        # b <- leaflet(final_filt) %>%
+        #     setView(-52, -15, 3.5) %>%
+        #     addTiles("MapBox")
+        # 
+        # 
+        # u <- leaflet(final_filt) %>% 
+        #     setView(-110, 52.8, 2.5) %>% 
+        #     addTiles("MapBox")
+        # 
+        # 
+        # i <- leaflet(final_filt) %>% 
+        #     setView(79, 21, 4.4) %>% 
+        #     addTiles("MapBox")
+        # 
+        # 
+        # a <- leaflet(final_filt) %>% 
+        #     setView(134, -27, 4) %>% 
+        #     addTiles("MapBox")
         
-        
-        u <- leaflet(final_filt) %>% 
-            setView(-110, 52.8, 2.5) %>% 
-            addTiles("MapBox")
-        
-        
-        i <- leaflet(final_filt) %>% 
-            setView(79, 21, 4.4) %>% 
-            addTiles("MapBox")
-        
-        
-        a <- leaflet(final_filt) %>% 
-            setView(134, -27, 4) %>% 
-            addTiles("MapBox")
-        
-        leafSel <- function(country){
-            country = input$countryseld
-            if(country == "USA") {
-                return(u)
-            }
-            if(country == "Brazil"){
-                return(b)
-            }
-            if(country == "India"){
-                return(i)
-            }
-            if(country == "Australia"){
-                return(a)
-            }
-        }
+        # leafSel <- function(country){
+        #     country = input$countryseld
+        #     if(country == "USA") {
+        #         return(u)
+        #     }
+        #     if(country == "Brazil"){
+        #         return(b)
+        #     }
+        #     if(country == "India"){
+        #         return(i)
+        #     }
+        #     if(country == "Australia"){
+        #         return(a)
+        #     }
+        # }
         
         labels <- sprintf("<strong>%s</strong><br/>%g new deaths",
                           final_filt$state, final_filt$newDeaths) %>% lapply(htmltools::HTML)
         
-        pcase <-  leafSel(input$countryseld) %>%
+        pcase <-  leafSel(input$countryseld, final_filt) %>%
             addPolygons(fillColor = ~beaut(final_filt$newDeaths),
                         weight = 2,
                         opacity = 1,
@@ -514,23 +529,7 @@ server <- function(input, output) {
         ggplotly(plota, tooltip = "text")
     })
     
-    eventFun <- function(df){
-        eve <- event_data("plotly_click")
-        if (is.null(eve)) return(NULL)
-        
-        if(eve$curveNumber == 0){
-            temp <<- df %>% filter(country == "Australia")
-        }
-        if(eve$curveNumber == 1){
-            temp <<- df %>% filter(country == "Brazil")
-        }
-        if(eve$curveNumber == 2){
-            temp <<- df %>% filter(country =="India")
-        }
-        if(eve$curveNumber == 3){
-            temp <<- df %>% filter(country =="USA")
-        }
-    }
+ 
     
     output$clicker <- DT::renderDataTable({
         eventFun(cd1)
@@ -539,20 +538,20 @@ server <- function(input, output) {
         # if (is.null(eve)) return(NULL)
         # 
         # if(eve$curveNumber == 0){
-        #     temp <- cd1 %>% filter(country == "Australia")
+        #     cd1 %>% filter(country == "Australia")
         # }
         # if(eve$curveNumber == 1){
-        #     temp <- cd1 %>% filter(country == "Brazil")
+        #     cd1 %>% filter(country == "Brazil")
         # }
         # if(eve$curveNumber == 2){
-        #     temp <- cd1 %>% filter(country =="India")
+        #     cd1 %>% filter(country =="India")
         # }
         # if(eve$curveNumber == 3){
-        #     temp <- cd1 %>% filter(country =="USA")
+        #     cd1 %>% filter(country =="USA")
         # }
         # Above commented code functioned into "eventFun()"
         
-        temp %>%
+        cd1 %>%
             filter(month == input$timerstr) %>% 
             select(state, m_case, m_death, m_string) %>% 
             arrange(desc(m_death))
@@ -566,19 +565,19 @@ server <- function(input, output) {
         # if (is.null(eve)) return(NULL)
         # 
         # if(eve$curveNumber == 0){
-        #     temp <- cd2 %>% filter(country == "Australia")
+        #     cd2 %>% filter(country == "Australia")
         # }
         # if(eve$curveNumber == 1){
-        #     temp <- cd2 %>% filter(country == "Brazil")
+        #     cd2 %>% filter(country == "Brazil")
         # }
         # if(eve$curveNumber == 2){
-        #     temp <- cd2 %>% filter(country =="India")
+        #     cd2 %>% filter(country =="India")
         # }
         # if(eve$curveNumber == 3){
-        #     temp <- cd2 %>% filter(country =="USA")
+        #     cd2 %>% filter(country =="USA")
         # }
         
-        temp %>%
+        cd2 %>%
             arrange(desc(cbd)) %>% 
             head(10) %>% 
             filter(month == input$timerstr) %>% 

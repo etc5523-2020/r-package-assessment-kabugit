@@ -7,11 +7,11 @@
 widthFun(width, box.width, command)
 }
 \arguments{
-\item{width:}{Width setting for rows, personal preference is 6.}
+\item{width}{Width setting for rows, personal preference is 6.}
 
-\item{box.width:}{Width setting for box, personal preference is NULL.}
+\item{box.width}{Width setting for box, personal preference is NULL.}
 
-\item{command:}{The expression for UI input}
+\item{command}{The expression for UI input}
 }
 \description{
 This function will create a set UI display of width specified by user for 2 levels - row and box.

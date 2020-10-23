@@ -4,10 +4,12 @@
 \alias{eventFun}
 \title{View the state-wise details.}
 \usage{
-eventFun(df)
+eventFun(df, session)
 }
 \arguments{
-\item{df:}{A data frame that contains information of all countries, out of which one would be selected by user on the line graph.}
+\item{df}{A data frame that contains information of all countries, out of which one would be selected by user on the line graph.}
+
+\item{session}{Link to shiny app server.}
 }
 \description{
 This function will let the user select the country of preference to display state-wise details of cases/deaths.

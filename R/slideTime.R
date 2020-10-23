@@ -10,5 +10,5 @@
 #' @export
 
 slideTime <- function(id, label) {
-  sliderInput(id, label, min(final$date), max(final$date), max(final$date))
+  sliderInput(id, label, 2020-01-22, 2020-09-28, 2020-09-28)
 }

@@ -4,10 +4,14 @@
 \alias{leafSel}
 \title{View a leaflet map.}
 \usage{
-leafSel(country)
+leafSel(country, df, session)
 }
 \arguments{
-\item{country:}{A country that the user will select to display country specific visualisation.}
+\item{country}{A country that the user will select to display country specific visualisation.}
+
+\item{df}{Dataframe that will be used to display a map based on country selected by user.}
+
+\item{session}{Link to shiny app server.}
 }
 \description{
 This function will display a leaflet map for cases/deaths for the country chosen by the user.
