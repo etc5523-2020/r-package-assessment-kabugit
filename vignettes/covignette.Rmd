@@ -51,7 +51,7 @@ US_states <- system.file("ext", "US_states.csv", package="covtrack")
 
 
 ```{r loader, include=FALSE}
-india <- read.csv(here::here("data", "India_states.csv"))
+#india <- read.csv(here::here("data", "India_states.csv"))
 india <- read.csv(India_states)
 
 india1 <- india %>% pivot_longer(cols = 3:41, names_to = "state", values_to = "value")
