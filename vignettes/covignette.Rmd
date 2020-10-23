@@ -51,7 +51,7 @@ US_states <- system.file("ext", "US_states.csv", package="covtrack")
 
 
 ```{r loader, include=FALSE}
-# india <- read.csv(here::here("data", "India_states.csv"))
+india <- read.csv(here::here("data", "India_states.csv"))
 india <- read.csv(India_states)
 
 india1 <- india %>% pivot_longer(cols = 3:41, names_to = "state", values_to = "value")
@@ -75,15 +75,15 @@ brazil <- readxl::read_xlsx(Brazil_states)
 aus_cases <- read.csv(Aus_cases)
 
 aus_cases1 <- aus_cases %>% pivot_longer(cols = 2:9, names_to = "state", values_to = "new_cases")
-aus_cases1 <- aus_cases1 %>% rename(date = `ï..Date`)
+aus_cases2 <- aus_cases1 %>% rename(date = `ï..Date`)
 
 # aus_deaths <- read.csv(here::here("data", "Aus_deaths.csv"))
 aus_deaths <- read.csv(Aus_deaths)
 
 aus_deaths1 <- aus_deaths %>% pivot_longer(cols = 2:9, names_to = "state", values_to = "new_deaths")
-aus_deaths1 <- aus_deaths1 %>% rename(date = `ï..Date`)
+aus_deaths2 <- aus_deaths1 %>% rename(date = `ï..Date`)
 
-aus_join <- aus_cases1 %>% left_join(aus_deaths1, by = c("date" = "date", "state" = "state"))
+aus_join <- aus_cases2 %>% left_join(aus_deaths2, by = c("date" = "date", "state" = "state"))
 
 aus_join[is.na(aus_join)] = 0
 
@@ -207,6 +207,7 @@ australia_states1 <- australia_states1 %>% rename(state = STATE_NAME)
 australia_states1 <- australia_states1 %>% select(state, geometry)
 
 australia_join <- aus_final1 %>% left_join(australia_states1, by = "state")
+
 
 final <- rbind(us_join, india_final2, brazil_join, australia_join)
 final <- st_as_sf(final)

@@ -57,4 +57,6 @@ australia_states1 <- australia_states1 %>% select(state, geometry)
 
 australia_join <- aus_final1 %>% left_join(australia_states1, by = "state")
 
+australia_join <- st_as_sf(australia_join)
+
 usethis::use_data(aus_final1, overwrite = TRUE)

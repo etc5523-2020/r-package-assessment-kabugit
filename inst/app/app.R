@@ -49,15 +49,15 @@ brazil <- readxl::read_xlsx(Brazil_states)
 aus_cases <- read.csv(Aus_cases)
 
 aus_cases1 <- aus_cases %>% pivot_longer(cols = 2:9, names_to = "state", values_to = "new_cases")
-aus_cases1 <- aus_cases1 %>% rename(date = `ï..Date`)
+aus_cases2 <- aus_cases1 %>% rename(date = `ï..Date`)
 
 # aus_deaths <- read.csv(here::here("data", "Aus_deaths.csv"))
 aus_deaths <- read.csv(Aus_deaths)
 
 aus_deaths1 <- aus_deaths %>% pivot_longer(cols = 2:9, names_to = "state", values_to = "new_deaths")
-aus_deaths1 <- aus_deaths1 %>% rename(date = `ï..Date`)
+aus_deaths2 <- aus_deaths1 %>% rename(date = `ï..Date`)
 
-aus_join <- aus_cases1 %>% left_join(aus_deaths1, by = c("date" = "date", "state" = "state"))
+aus_join <- aus_cases2 %>% left_join(aus_deaths2, by = c("date" = "date", "state" = "state"))
 
 aus_join[is.na(aus_join)] = 0
 
