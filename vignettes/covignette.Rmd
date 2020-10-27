@@ -1,0 +1,325 @@
+---
+title: "An Overview of COVID 19 Progression in Four Major Countries"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{An Overview of COVID 19 Progression in Four Major Countries}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = FALSE,
+  warning = FALSE,
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+```{r setup, include=FALSE}
+library(covtrack)
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(leaflet)
+library(sf)
+library(lubridate)
+library(tidyr)
+library(stringr)
+
+Aus_cases <- system.file("ext", "Aus_cases.csv", package="covtrack")
+Aus_deaths <- system.file("ext", "Aus_deaths.csv", package="covtrack")
+Aus_deaths <- system.file("ext", "Aus_state_codes.xlsx", package="covtrack")
+Aus_deaths <- system.file("ext", "Aus_deaths.csv", package="covtrack")
+Aus_state_codes <- system.file("ext", "Aus_state_codes.xlsx", package="covtrack")
+Brazil_state_codes <- system.file("ext", "Brazil_state_codes.xlsx", package="covtrack")
+Brazil_states <- system.file("ext", "Brazil_states.xlsx", package="covtrack")
+covid_stringency_index <- system.file("ext", "covid-stringency-index.csv", package="covtrack")
+Death_rate <- system.file("ext", "Death_rate_null.png", package="covtrack")
+India_latlong <- system.file("ext", "India_latlong.xlsx", package="covtrack")
+India_state_codes <- system.file("ext", "India_state_codes.csv", package="covtrack")
+India_states <- system.file("ext", "India_states.csv", package="covtrack")
+New_cases <- system.file("ext", "New_cases.png", package="covtrack")
+New_deaths <- system.file("ext", "New_deaths.png", package="covtrack")
+us_state_codes <- system.file("ext", "us_state_codes.csv", package="covtrack")
+US_states <- system.file("ext", "US_states.csv", package="covtrack")
+```
+
+
+```{r loader, include=FALSE}
+#india <- read.csv(here::here("data", "India_states.csv"))
+india <- read.csv(India_states)
+
+india1 <- india %>% pivot_longer(cols = 3:41, names_to = "state", values_to = "value")
+
+india2 <- india1 %>% pivot_wider(names_from = Status, values_from = value)
+
+india2 <- india2 %>% rename(State_code = state)
+
+# isc <- read.csv(here::here("data", "India_state_codes.csv"))
+isc <- read.csv(India_state_codes)
+
+india3 <- india2 %>% left_join(isc, by = "State_code")
+
+# US <- read.csv(here::here("data", "US_states.csv"))
+US <- read.csv(US_states)
+
+# brazil <- readxl::read_xlsx(here::here("data", "Brazil_states.xlsx"))
+brazil <- readxl::read_xlsx(Brazil_states)
+
+# aus_cases <- read.csv(here::here("data", "Aus_cases.csv"))
+aus_cases <- read.csv(Aus_cases)
+
+aus_cases1 <- aus_cases %>% pivot_longer(cols = 2:9, names_to = "state", values_to = "new_cases")
+aus_cases2 <- aus_cases1 %>% rename(date = "ï..Date")
+
+# aus_deaths <- read.csv(here::here("data", "Aus_deaths.csv"))
+aus_deaths <- read.csv(Aus_deaths)
+
+aus_deaths1 <- aus_deaths %>% pivot_longer(cols = 2:9, names_to = "state", values_to = "new_deaths")
+aus_deaths2 <- aus_deaths1 %>% rename(date = "ï..Date")
+
+aus_join <- aus_cases2 %>% left_join(aus_deaths2, by = c("date" = "date", "state" = "state"))
+
+aus_join[is.na(aus_join)] = 0
+
+aus_join$date <- paste0(aus_join$date, "-2020")
+
+aus_join$date <- dmy(aus_join$date)
+aus_join <- aus_join %>% rename(State_code = state)
+
+# aus_ll <- readxl::read_xlsx(here::here("data", "Aus_state_codes.xlsx"))
+aus_ll <- readxl::read_xlsx(Aus_state_codes)
+
+aus_ll <- aus_ll %>% rename(state = State)
+
+aus_final <- aus_join %>% left_join(aus_ll, by = "State_code")
+
+india3$Date <- dmy(india3$Date)
+
+# india_ll <- readxl::read_xlsx(here::here("data", "India_latlong.xlsx"))
+india_ll <- readxl::read_xlsx(India_latlong)
+
+
+india_final <- india3 %>% left_join(india_ll, by = "State")
+
+india_final <- india3 %>% filter(State != "State Unassigned") %>% filter(State != "Total")
+
+# us_ll <- read.csv(here::here("data", "us_state_codes.csv"))
+us_ll <- read.csv(us_state_codes)
+
+
+US <- US %>% rename(State_code = state)
+
+us_final <- US %>% left_join(us_ll, by = "State_code")
+
+us_final$submission_date <- mdy(us_final$submission_date)
+
+us_final <- us_final[!is.na(us_final$Latitude), ]
+
+brazil1 <- brazil %>% filter(state != "TOTAL")
+
+# brazil_ll <- readxl::read_xlsx(here::here("data", "Brazil_state_codes.xlsx"))
+brazil_ll <- readxl::read_xlsx(Brazil_state_codes)
+
+brazil1 <- brazil1 %>% rename(State_codes = state)
+
+brazil2 <- brazil1 %>% left_join(brazil_ll, by = "State_codes")
+
+brazil_final <- brazil2 %>% select(date, country, State_codes, newDeaths, newCases, totalCases, state)
+
+brazil_final <- brazil_final %>% rename(State_code = State_codes)
+brazil_final1 <- brazil_final %>% select(date, State_code, state, country, newCases, newDeaths)
+
+aus_final$country <- "Australia"
+
+aus_final <- aus_final %>% rename(newCases = new_cases, newDeaths = new_deaths)
+aus_final1 <- aus_final %>% select(date, State_code, state, country, newCases, newDeaths)
+
+us_final$country <- "USA"
+
+us_final <- us_final %>% rename(date = submission_date, state = State, newCases = new_case, newDeaths = new_death)
+us_final1 <- us_final %>% select(date, State_code, state, country, newCases, newDeaths)
+
+india_final$country <- "India"
+
+india_final <- india_final %>% rename(date = Date, newCases = Confirmed, newDeaths = Deceased, state = State)
+india_final1 <- india_final %>% select(date, State_code, state, country, newCases, newDeaths)
+
+final <- rbind(us_final1, india_final1, brazil_final1, aus_final1)
+
+final <- final
+
+brazil_states <- geojsonio::geojson_read("https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson", what = "sp")
+
+
+brazil_states1 <- st_as_sf(brazil_states)
+
+brazil_states1 <- brazil_states1 %>% rename(state = name)
+
+brazil_states1 <- brazil_states1 %>% rename(State_code = sigla)
+
+brazil_states2 <- brazil_states1 %>% select(State_code, geometry)
+
+brazil_join <- brazil_final1 %>% left_join(brazil_states2, by = "State_code")
+
+us_states <- geojsonio::geojson_read("https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json", what = "sp")
+
+us_states1 <- st_as_sf(us_states)
+
+us_states1 <- us_states1 %>% rename(state = name)
+
+us_states2 <- us_states1 %>% select(state, geometry)
+
+us_join <- us_final1 %>% left_join(us_states2, by = "state")
+
+india_states <- geojsonio::geojson_read("https://raw.githubusercontent.com/geohacker/india/master/state/india_telengana.geojson", what = "sp")
+
+india_states1 <- st_as_sf(india_states)
+
+india_sort <- india_final1 %>% select(State_code, state)
+
+india_sort1 <- india_sort %>% mutate(ID = row_number())
+
+india_sort1 <- india_sort1 %>% filter(ID <= 36)
+
+india_states2 <- india_states1 %>% rename(ID = ID_1)
+
+india_sort3 <- india_sort1 %>% left_join(india_final1, by = "state")
+
+india_states2 <- india_states2 %>% select(ID, geometry)
+
+india_final2 <- india_sort3 %>% left_join(india_states2, by = "ID")
+
+india_final2 <- india_final2 %>% select(date, State_code.y, state, country, newCases, newDeaths, geometry)
+india_final2 <- india_final2 %>% rename(State_code = State_code.y)
+
+australia_states <- geojsonio::geojson_read("https://raw.githubusercontent.com/rowanhogan/australian-states/master/states.geojson", what = "sp")
+
+australia_states1 <- st_as_sf(australia_states)
+
+australia_states1 <- australia_states1 %>% rename(state = STATE_NAME)
+
+australia_states1 <- australia_states1 %>% select(state, geometry)
+
+australia_join <- aus_final1 %>% left_join(australia_states1, by = "state")
+
+
+final <- rbind(us_join, india_final2, brazil_join, australia_join)
+final <- st_as_sf(final)
+
+final <- final %>% filter(date <= "2020-09-25")
+
+final$newCases <- str_remove_all(final$newCases, "-")
+final$newCases <- as.double(final$newCases)
+
+final$newDeaths <- str_remove_all(final$newDeaths, "-")
+final$newDeaths <- as.double(final$newDeaths)
+
+
+cd <- final
+
+cd <- cd %>% mutate(month = substr(date, 6, 7))
+
+cd <- cd %>% group_by(state, month) %>% mutate(m_case = sum(newCases)) %>% mutate(m_death = sum(newDeaths))
+
+cd <- cd %>% mutate(cbd = (m_death/m_case)*100)
+
+cd$cbd[is.nan(cd$cbd)]<-0
+
+cd$cbd <- round(cd$cbd, 2)
+
+cd <- cd %>% group_by(country, month) %>% mutate(countr_mcase = sum(newCases)) %>% mutate(countr_mdeath = sum(newDeaths))
+
+cd <- cd %>% mutate(countr_cbd = (countr_mdeath/countr_mcase)*100)
+
+cd$countr_cbd <- round(cd$countr_cbd, 2)
+
+# stringent <- read.csv(here::here("data", "covid-stringency-index.csv"))
+stringent <- read.csv(covid_stringency_index)
+
+stringent <- stringent %>% filter(Date >= "2020-01-22" & Date <= "2020-09-25")
+
+stringent <- stringent %>% filter(Code %in% c("USA", "AUS", "BRA", "IND"))
+
+stringent <- stringent %>% mutate(month = substr(Date, 6, 7)) %>%
+    group_by(month, Entity) %>%
+    mutate(m_string = mean(Stringency.Index..OxBSG.))
+
+stringent$m_string <- round(stringent$m_string, 2)
+
+stringent <- stringent %>% rename(country = Entity)
+
+stringent <- stringent %>% select(country, month, m_string)
+
+stringent$country[stringent$country == "United States"] <- "USA"
+
+stringent <- distinct(stringent)
+cd <- cd %>% left_join(stringent)
+
+cd$month <- as.numeric(cd$month)
+
+cd1 <- cd %>% select(month, country, state, m_case, m_death, m_string)
+cd1 <- as.data.frame(cd1)
+cd1 <- distinct(cd1)
+
+cd2 <- cd %>% select(month, country, state, cbd)
+cd2 <- as.data.frame(cd2)
+```
+
+This package provides the shiny app to visualise the progression of COVID 19 with time in four major countries affected - `r unique(final$country)`. Visualisation is done for 4 major aspects - new cases, deaths, death rate with respect to cases and stringency index (level of restrictions imposed by governments to stop the virus).
+
+
+Examples of visualisations included in covtrack:
+
+1. New cases: An example of new cases visualised after the user selects USA as the country and 22-06-2020 as the date on the time slider. Both options provided in the app to choose from:
+```{r mapper}
+final_filt <- final %>% 
+  filter(country == "USA") %>% filter(date == "2020-06-22")
+labels <- sprintf("<strong>%s</strong><br/>%g new cases",
+                          final_filt$state, final_filt$newCases) %>% lapply(htmltools::HTML)
+
+bins <- c(0, 50, 100, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, Inf)
+beaut <- colorBin("YlOrRd", domain = final_filt$newCases, bins = bins)
+
+map_USA <- leaflet(final_filt) %>%
+  setView(-110, 52.8, 2.5) %>%
+  addTiles("MapBox") %>%
+  addPolygons(fillColor = ~beaut(final_filt$newCases),
+              weight = 2,
+              opacity = 1,
+              color = "white",
+              dashArray = "3",
+              fillOpacity = 1,
+              highlight = highlightOptions(weight = 5,
+                                           color = "#600",
+                                           dashArray = "",
+                                           fillOpacity = 0.7,
+                                           bringToFront = TRUE),
+              label = labels)%>% addLegend(pal = beaut,
+                                           values = ~newCases, 
+                                           opacity = 0.7, title = NULL, 
+                                           position = "topright")
+
+map_USA
+```
+
+
+1. Death rate: This is calculated as the percentage of monthly deaths out of monthly cases in a particular country or state in one of those countries. Here is what that looks like for all four countries included in the analyses for this app:
+
+```{r dr}
+dr <- cd %>%
+  ggplot(aes(x = as.factor(month), y = countr_cbd, text = paste0("Country: ", country, ",Death rate: ", cbd, "  Month: ", month))) +
+            geom_line(aes(color = country, group = country)) +
+            labs(x = "Months",
+                 y = "Death rate per monthly cases") +
+            theme_bw() +
+            theme(legend.title = element_blank())
+
+ggplotly(dr)
+```
+
